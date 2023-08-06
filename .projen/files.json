@@ -9,6 +9,7 @@
     ".projen/tasks.json",
     ".vscode/settings.json",
     "cdk.json",
+    "pyproject.toml",
     "requirements-dev.txt",
     "requirements.txt"
   ],

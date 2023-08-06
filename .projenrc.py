@@ -1,5 +1,5 @@
 from projen.awscdk import AwsCdkPythonApp
-from projen.python import VenvOptions
+from projen.python import VenvOptions, PoetryPyproject
 from projen.vscode import (
     VsCode,
     VsCodeSettings,
@@ -10,24 +10,42 @@ from projen import (
 )
 
 VENV_DIR = ".venv"
-project: Project = AwsCdkPythonApp(
-    author_email="jacobpetterle+aiforu@gmail.com",
-    author_name="Jacob Petterle",
+DEPENDENCIES = [
+    "pydantic[dotenv]<=1.10.11",
+    "pygit2",
+    "boto3",
+]
+DEV_DEPENDENCIES = [
+    "boto3-stubs[secretsmanager]",
+]
+BASE_PROJECT_OPTIONS = {
+    "name": "tai-aws-account-bootstrap",
+    "description": "Bootstraps a new AWS account with a baseline set of resources",
+    "version": "0.1.0",
+}
+AUTHOR = "Jacob Petterle"
+AUTHOR_EMAIL = "jacobpetterle@gmail.com"
+project: AwsCdkPythonApp = AwsCdkPythonApp(
+    author_name=AUTHOR,
+    author_email=AUTHOR_EMAIL,
     cdk_version="2.89.0",
     module_name="accountbootstrap",
-    name="tai-aws-account-bootstrap",
-    package_name="tai-aws-account-bootstrap",
-    description="Bootstraps a new AWS account with a baseline set of resources",
-    version="0.1.0",
     venv_options=VenvOptions(envdir=VENV_DIR),
-    deps=[
-        "pydantic[dotenv]<=1.10.11",
-        "pygit2",
-        "boto3",
-    ],
-    dev_deps=[
-        "boto3-stubs[secretsmanager]",
-    ],
+    deps=DEPENDENCIES,
+    dev_deps=DEV_DEPENDENCIES,
+    **BASE_PROJECT_OPTIONS,
+)
+poetry_project = PoetryPyproject(
+    project=project,
+    packages=["tai-aws-account-bootstrap"],
+    homepage="https://github.com/tai-team-ai/tai-aws-account-bootstrap",
+    authors=[AUTHOR],
+    license="MIT",
+    readme="README.md",
+    dependencies=DEPENDENCIES,
+    dev_dependencies=DEV_DEPENDENCIES,
+    repository="https://github.com/tai-team-ai/tai-aws-account-bootstrap",
+    **BASE_PROJECT_OPTIONS,
 )
 
 make_file: Makefile = Makefile(

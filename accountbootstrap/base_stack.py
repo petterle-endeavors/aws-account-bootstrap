@@ -2,7 +2,6 @@
 from constructs import Construct
 from aws_cdk import (
     Stack,
-    aws_iam as iam,
 )
 from accountbootstrap.stack_config_models import (
     StackConfigBaseModel,
@@ -26,5 +25,5 @@ class BaseStack(Stack):
             tags=config.tags,
             termination_protection=config.termination_protection,
         )
-        self._namer = lambda name: f"{config.stack_name}-{name}"
+        self._namer = config.namer
         self._config = config

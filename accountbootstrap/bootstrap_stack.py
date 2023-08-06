@@ -16,11 +16,17 @@ class BootstrapStack(BaseStack):
         """Initialize the stack for bootstrapping an AWS account."""
         super().__init__(scope=scope, config=config)
         self._vpc = self._create_vpc()
+        self._cloudtop_security_group = self._get_cloudtop_security_group()
 
     @property
     def vpc(self) -> ec2.Vpc:
         """Return the VPC for the stack."""
         return self._vpc
+
+    @property
+    def cloudtop_security_group(self) -> ec2.SecurityGroup:
+        """Return the security group for cloudtops in the account."""
+        return self._cloudtop_security_group
 
     def _create_vpc(self) -> ec2.Vpc:
         subnet_configurations = []
@@ -53,3 +59,18 @@ class BootstrapStack(BaseStack):
             subnets=subnets,
         )
         return vpc
+
+    def _get_cloudtop_security_group(self) -> ec2.SecurityGroup:
+        sg = ec2.SecurityGroup(
+            scope=self,
+            id=self._namer("cloudtop-security-group"),
+            vpc=self._vpc,
+            security_group_name=self._namer("cloudtop-security-group"),
+            description="Security group for connecting to cloudtops in the account.",
+        )
+        sg.add_ingress_rule(
+            peer=ec2.Peer.any_ipv4(),
+            connection=ec2.Port.tcp(22),
+            description="Allow ssh access from anywhere.",
+        )
+        return sg

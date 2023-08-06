@@ -13,12 +13,19 @@ VENV_DIR = ".venv"
 project: Project = AwsCdkPythonApp(
     author_email="jacobpetterle+aiforu@gmail.com",
     author_name="Jacob Petterle",
-    cdk_version="2.1.0",
-    module_name="accountootstrap",
+    cdk_version="2.89.0",
+    module_name="accountbootstrap",
     name="tai-account-bootstrap",
     version="0.1.0",
     venv_options=VenvOptions(envdir=VENV_DIR),
-    deps=[],
+    deps=[
+        "pydantic[dotenv]<=1.10.11",
+        "pygit2",
+        "boto3",
+    ],
+    dev_deps=[
+        "boto3-stubs[secretsmanager]",
+    ],
 )
 
 make_file: Makefile = Makefile(

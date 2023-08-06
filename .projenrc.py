@@ -17,6 +17,7 @@ project: Project = AwsCdkPythonApp(
     module_name="accountbootstrap",
     name="tai-aws-account-bootstrap",
     package_name="tai-aws-account-bootstrap",
+    description="Bootstraps a new AWS account with a baseline set of resources",
     version="0.1.0",
     venv_options=VenvOptions(envdir=VENV_DIR),
     deps=[

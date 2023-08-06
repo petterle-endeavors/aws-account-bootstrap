@@ -1,22 +1,6 @@
 {
   "dependencies": [
     {
-      "name": "aws-lambda-typing",
-      "type": "devenv"
-    },
-    {
-      "name": "boto3-stubs[essential]",
-      "type": "devenv"
-    },
-    {
-      "name": "boto3-stubs[secretsmanager]",
-      "type": "devenv"
-    },
-    {
-      "name": "ipykernel",
-      "type": "devenv"
-    },
-    {
       "name": "projen",
       "version": "0.71.72",
       "type": "devenv"
@@ -27,108 +11,8 @@
       "type": "runtime"
     },
     {
-      "name": "aws-lambda-powertools",
-      "type": "runtime"
-    },
-    {
-      "name": "beautifulsoup4",
-      "type": "runtime"
-    },
-    {
-      "name": "boto3",
-      "type": "runtime"
-    },
-    {
       "name": "constructs",
       "version": "^10.0.5",
-      "type": "runtime"
-    },
-    {
-      "name": "fastapi<=0.98.0",
-      "type": "runtime"
-    },
-    {
-      "name": "filetype",
-      "type": "runtime"
-    },
-    {
-      "name": "langchain==0.0.229",
-      "type": "runtime"
-    },
-    {
-      "name": "loguru",
-      "type": "runtime"
-    },
-    {
-      "name": "openai",
-      "type": "runtime"
-    },
-    {
-      "name": "pdf2image",
-      "type": "runtime"
-    },
-    {
-      "name": "pinecone-client[grpc]",
-      "type": "runtime"
-    },
-    {
-      "name": "pinecone-text",
-      "type": "runtime"
-    },
-    {
-      "name": "pinecone-text[splade]",
-      "type": "runtime"
-    },
-    {
-      "name": "pydantic[dotenv]<=1.10.11",
-      "type": "runtime"
-    },
-    {
-      "name": "pydantic<=1.10.11",
-      "type": "runtime"
-    },
-    {
-      "name": "pygit2",
-      "type": "runtime"
-    },
-    {
-      "name": "pymongo",
-      "type": "runtime"
-    },
-    {
-      "name": "pymupdf",
-      "type": "runtime"
-    },
-    {
-      "name": "PyPDF2",
-      "type": "runtime"
-    },
-    {
-      "name": "pytest",
-      "type": "runtime"
-    },
-    {
-      "name": "pytest-cov",
-      "type": "runtime"
-    },
-    {
-      "name": "requests",
-      "type": "runtime"
-    },
-    {
-      "name": "selenium",
-      "type": "runtime"
-    },
-    {
-      "name": "tiktoken",
-      "type": "runtime"
-    },
-    {
-      "name": "unstructured",
-      "type": "runtime"
-    },
-    {
-      "name": "uvicorn",
       "type": "runtime"
     },
     {

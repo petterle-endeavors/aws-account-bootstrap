@@ -15,7 +15,8 @@ project: Project = AwsCdkPythonApp(
     author_name="Jacob Petterle",
     cdk_version="2.89.0",
     module_name="accountbootstrap",
-    name="tai-account-bootstrap",
+    name="tai-aws-account-bootstrap",
+    package_name="tai-aws-account-bootstrap",
     version="0.1.0",
     venv_options=VenvOptions(envdir=VENV_DIR),
     deps=[

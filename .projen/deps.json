@@ -24,6 +24,10 @@
       "type": "runtime"
     },
     {
+      "name": "poetry",
+      "type": "runtime"
+    },
+    {
       "name": "pydantic[dotenv]<=1.10.11",
       "type": "runtime"
     },

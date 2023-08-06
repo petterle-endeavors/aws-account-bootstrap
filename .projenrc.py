@@ -5,45 +5,75 @@ from projen.vscode import (
     VsCodeSettings,
 )
 from projen import (
-    Project,
     Makefile,
 )
 
+
+def to_requirements(dependencies: dict) -> list:
+    """Converts a dictionary of dependencies to a list of requirements"""
+    requirements = []
+    for key, value in dependencies.items():
+        dependency_str = key
+        if value:
+            dependency_str += "[" + ",".join(value.get("extras", [])) + "]"
+            version = value.get("version")
+            if version:
+                dependency_str += version
+        requirements.append(dependency_str)
+    return requirements
+
+
+def to_pypoject(dependencies: dict) -> dict:
+    """Converts a dictionary of dependencies to a dictionary of pyproject dependencies"""
+    pyproject = {}
+    for key, value in dependencies.items():
+        if value:
+            version = value.get("version", "*")
+            value.update({"version": version})
+            dependency_str = value
+        else:
+            dependency_str = "*"
+        pyproject[key] = dependency_str
+    return pyproject
+
+
 VENV_DIR = ".venv"
-DEPENDENCIES = [
-    "pydantic[dotenv]<=1.10.11",
-    "pygit2",
-    "boto3",
-]
-DEV_DEPENDENCIES = [
-    "boto3-stubs[secretsmanager]",
-]
+DEPENDENCIES = {
+    "pydantic": {"extras": ["dotenv"], "version": "<=1.10.11"},
+    "pygit2": "",
+    "boto3": "",
+    "poetry": "",
+}
+DEV_DEPENDENCIES = {
+    "boto3-stubs": {"extras": ["secretsmanager"]},
+}
 BASE_PROJECT_OPTIONS = {
     "name": "tai-aws-account-bootstrap",
     "description": "Bootstraps a new AWS account with a baseline set of resources",
-    "version": "0.1.0",
+    "version": "0.0.0",
 }
 AUTHOR = "Jacob Petterle"
 AUTHOR_EMAIL = "jacobpetterle@gmail.com"
+MODULE_NAME = "_".join(BASE_PROJECT_OPTIONS["name"].split("-"))
 project: AwsCdkPythonApp = AwsCdkPythonApp(
     author_name=AUTHOR,
     author_email=AUTHOR_EMAIL,
     cdk_version="2.89.0",
-    module_name="accountbootstrap",
+    module_name=MODULE_NAME,
     venv_options=VenvOptions(envdir=VENV_DIR),
-    deps=DEPENDENCIES,
-    dev_deps=DEV_DEPENDENCIES,
+    deps=to_requirements(DEPENDENCIES),
+    dev_deps=to_requirements(DEV_DEPENDENCIES),
     **BASE_PROJECT_OPTIONS,
 )
 poetry_project = PoetryPyproject(
     project=project,
-    packages=["tai-aws-account-bootstrap"],
     homepage="https://github.com/tai-team-ai/tai-aws-account-bootstrap",
     authors=[AUTHOR],
+    packages=[{"include": MODULE_NAME}],
     license="MIT",
     readme="README.md",
-    dependencies=DEPENDENCIES,
-    dev_dependencies=DEV_DEPENDENCIES,
+    dependencies=to_pypoject(DEPENDENCIES),
+    dev_dependencies=to_pypoject(DEV_DEPENDENCIES),
     repository="https://github.com/tai-team-ai/tai-aws-account-bootstrap",
     **BASE_PROJECT_OPTIONS,
 )
@@ -77,6 +107,15 @@ make_file.add_rule(
 make_file.add_rule(
     targets=["test-deploy-all"],
     prerequisites=["full-test", "deploy-all"],
+)
+make_file.add_rule(
+    targets=["publish"],
+    recipe=[
+        "projen",
+        "@echo 'Please enter your MYPI API key: '; read -s MYPI_API_TOKEN; poetry config pypi-token.pypi $$MYPI_API_TOKEN",
+        "poetry build",
+        "@read -p 'Are you sure you want to publish this package? [y/n]: ' REPLY; if [ $$REPLY = 'y' ]; then poetry publish; fi"
+    ],
 )
 
 vscode = VsCode(project)

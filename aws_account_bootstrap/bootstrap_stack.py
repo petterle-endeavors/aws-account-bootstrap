@@ -3,8 +3,8 @@ from constructs import Construct
 from aws_cdk import (
     aws_ec2 as ec2,
 )
-from accountbootstrap.base_stack import BaseStack
-from accountbootstrap.stack_config_models import (
+from aws_account_bootstrap.base_stack import BaseStack
+from aws_account_bootstrap.base_stack_config import (
     StackConfigBaseModel,
 )
 

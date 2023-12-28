@@ -5,27 +5,26 @@ requires = [ "poetry_core>=1.0.0" ]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-authors = [ "Jacob Petterle" ]
-description = "Bootstraps a new AWS account with a baseline set of resources"
-homepage = "https://github.com/tai-team-ai/tai-aws-account-bootstrap"
-license = "MIT"
-name = "tai-aws-account-bootstrap"
-readme = "README.md"
-repository = "https://github.com/tai-team-ai/tai-aws-account-bootstrap"
+name = "aws-account-bootstrap"
 version = "0.0.0"
-
-  [[tool.poetry.packages]]
-  include = "tai_aws_account_bootstrap"
+description = "A CDK app to bootstrap an AWS account. Includes helpful base stack config as well."
+authors = [ "Jacob Petterle <jacobpetterle@tai-tutor.team>" ]
+readme = "README.md"
 
   [tool.poetry.dependencies]
-  pygit2 = "*"
-  boto3 = "*"
-  poetry = "*"
+  aws-lambda-powertools = "^2.26"
+  fastapi = "^0.104"
+  mangum = "^0.17"
+  pydantic-settings = "^2.0"
+  pydantic = "^2.4"
+  python = "^3.9"
+  urllib3 = "<2"
 
-    [tool.poetry.dependencies.pydantic]
-    extras = [ "dotenv" ]
-    version = "<=1.10.11"
+  [tool.poetry.dev-dependencies]
+  aws-cdk-lib = "^2.106"
+  "aws-cdk.aws-lambda-python-alpha" = "^2.106.1a0"
+  projen = "<=0.72.0"
 
-[tool.poetry.dev-dependencies.boto3-stubs]
-extras = [ "secretsmanager" ]
-version = "*"
+    [tool.poetry.dev-dependencies.uvicorn]
+    version = "^0.24.0"
+    extras = [ "standard" ]

@@ -1,129 +1,85 @@
-from projen.awscdk import AwsCdkPythonApp
-from projen.python import VenvOptions, PoetryPyproject
-from projen.vscode import (
-    VsCode,
-    VsCodeSettings,
-)
-from projen import (
-    Makefile,
-)
+from projen.python import PythonProject
+from projen import TextFile
 
 
-def to_requirements(dependencies: dict) -> list:
-    """Converts a dictionary of dependencies to a list of requirements"""
-    requirements = []
-    for key, value in dependencies.items():
-        dependency_str = key
-        if value:
-            dependency_str += "[" + ",".join(value.get("extras", [])) + "]"
-            version = value.get("version")
-            if version:
-                dependency_str += version
-        requirements.append(dependency_str)
-    return requirements
-
-
-def to_pypoject(dependencies: dict) -> dict:
-    """Converts a dictionary of dependencies to a dictionary of pyproject dependencies"""
-    pyproject = {}
-    for key, value in dependencies.items():
-        if value:
-            version = value.get("version", "*")
-            value.update({"version": version})
-            dependency_str = value
-        else:
-            dependency_str = "*"
-        pyproject[key] = dependency_str
-    return pyproject
-
-
-VENV_DIR = ".venv"
-DEPENDENCIES = {
-    "pydantic": {"extras": ["dotenv"], "version": "<=1.10.11"},
-    "pygit2": "",
-    "boto3": "",
-    "poetry": "",
-}
-DEV_DEPENDENCIES = {
-    "boto3-stubs": {"extras": ["secretsmanager"]},
-}
-BASE_PROJECT_OPTIONS = {
-    "name": "tai-aws-account-bootstrap",
-    "description": "Bootstraps a new AWS account with a baseline set of resources",
-    "version": "0.0.0",
-}
-AUTHOR = "Jacob Petterle"
-AUTHOR_EMAIL = "jacobpetterle@gmail.com"
-MODULE_NAME = "_".join(BASE_PROJECT_OPTIONS["name"].split("-"))
-project: AwsCdkPythonApp = AwsCdkPythonApp(
-    author_name=AUTHOR,
-    author_email=AUTHOR_EMAIL,
-    cdk_version="2.89.0",
-    module_name=MODULE_NAME,
-    venv_options=VenvOptions(envdir=VENV_DIR),
-    deps=to_requirements(DEPENDENCIES),
-    dev_deps=to_requirements(DEV_DEPENDENCIES),
-    **BASE_PROJECT_OPTIONS,
-)
-poetry_project = PoetryPyproject(
-    project=project,
-    homepage="https://github.com/tai-team-ai/tai-aws-account-bootstrap",
-    authors=[AUTHOR],
-    packages=[{"include": MODULE_NAME}],
-    license="MIT",
-    readme="README.md",
-    dependencies=to_pypoject(DEPENDENCIES),
-    dev_dependencies=to_pypoject(DEV_DEPENDENCIES),
-    repository="https://github.com/tai-team-ai/tai-aws-account-bootstrap",
-    **BASE_PROJECT_OPTIONS,
-)
-
-make_file: Makefile = Makefile(
-    project,
-    "./makefile",
-)
-make_file.add_rule(
-    targets=["deploy-all"],
-    recipe=[
-        "cdk deploy --all --require-approval never",
+AUTHORS = [
+    "Jacob Petterle",
+]
+PROJECT = PythonProject(
+    author_email="jacobpetterle@tai-tutor.team",
+    author_name=AUTHORS[0],
+    module_name="aws_account_bootstrap",
+    name="aws-account-bootstrap",
+    version="0.0.0",
+    description="A CDK app to bootstrap an AWS account. Includes helpful base stack config as well.",
+    poetry=True,
+    deps=[
+        "mangum@^0.17",
+        "fastapi@^0.104",
+        "python@^3.9",
+        "aws-lambda-powertools@^2.26",
+        "pydantic@^2.4",
+        "pydantic-settings@^2.0",
+        "urllib3@<2",  # this is required to work on lambda
+    ],
+    dev_deps=[
+        "projen@<=0.72.0",
+        "aws-cdk-lib@^2.106",
+        "aws-cdk.aws-lambda-python-alpha@^2.106.1a0",
+        "uvicorn@{version = '^0.24.0', extras = ['standard']}",
     ],
 )
-make_file.add_rule(
-    targets=["unit-test"],
-    recipe=[
-        "python3 -m pytest -vv tests/unit --cov=taiservice --cov-report=term-missing --cov-report=xml:test-reports/coverage.xml --cov-report=html:test-reports/coverage",
-    ]
+PROJECT.add_git_ignore("**/cdk.out")
+PROJECT.add_git_ignore("**/.venv*")
+
+MAKEFILE_CONTENTS = """\
+install:
+	pip install "projen<=0.72.0"
+
+synth:
+	projen --post false
+
+update-deps:
+\tpoetry update
+
+docker-start:
+\tsudo systemctl start docker
+
+cdk-deploy-all:
+
+\tcdk deploy --all --require-approval never --app "python app.py"
+
+"""
+
+MAKEFILE = TextFile(
+    PROJECT,
+    "Makefile",
+    lines=MAKEFILE_CONTENTS.splitlines(),
+    committed=True,
+    readonly=True,
 )
-make_file.add_rule(
-    targets=["functional-test"],
-    recipe=[
-        "python3 -m pytest -vv tests/functional --cov=taiservice --cov-report=term-missing --cov-report=xml:test-reports/coverage.xml --cov-report=html:test-reports/coverage",
-    ]
-)
-make_file.add_rule(
-    targets=["full-test"],
-    prerequisites=["unit-test", "functional-test"],
-)
-make_file.add_rule(
-    targets=["test-deploy-all"],
-    prerequisites=["full-test", "deploy-all"],
-)
-make_file.add_rule(
-    targets=["publish"],
-    recipe=[
-        "projen",
-        "@echo 'Please enter your MYPI API key: '; read -s MYPI_API_TOKEN; poetry config pypi-token.pypi $$MYPI_API_TOKEN",
-        "poetry build",
-        "@read -p 'Are you sure you want to publish this package? [y/n]: ' REPLY; if [ $$REPLY = 'y' ]; then poetry publish; fi"
-    ],
+CONFIGURE_GITHUB_CREDS_CONTENTS = """\
+#!/bin/bash
+
+# Check if the correct number of parameters are passed
+if [ "$#" -ne 2 ]; then
+    echo "Usage: ./setupGitCLI.sh [email] [name]"
+    exit 1
+fi
+
+# Setup git cli with provided email and name
+git config --global user.email "$1"
+git config --global user.name "$2"
+projen
+echo "Git has been configured with Email: $1 and Name: $2"
+"""
+CONFIGURE_GITHUB_CREDS = TextFile(
+    PROJECT,
+    "configureGitCLI.sh",
+    lines=CONFIGURE_GITHUB_CREDS_CONTENTS.splitlines(),
+    committed=True,
+    readonly=True,
 )
 
-vscode = VsCode(project)
 
-vscode_settings: VsCodeSettings = VsCodeSettings(vscode)
-vscode_settings.add_setting("python.formatting.provider", "none")
-vscode_settings.add_setting("python.testing.pytestEnabled", True)
-vscode_settings.add_setting("python.testing.pytestArgs", ["tests"])
-vscode_settings.add_setting("editor.formatOnSave", True)
-
-project.synth()
+PROJECT.synth()

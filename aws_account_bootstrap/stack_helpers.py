@@ -4,12 +4,13 @@ from aws_cdk import (
 )
 import boto3
 from constructs import Construct
-from accountbootstrap.stack_config_models import (
+from aws_account_bootstrap.base_stack_config import (
     AWSDeploymentSettings,
 )
 
 
 def add_tags(scope: Construct, tags: dict):
+    
     """Add tags to a CDK stack.
 
     Args:

@@ -1,21 +1,20 @@
 """Define a base stack that provides some nice usability features."""
+from aws_cdk import Stack
 from constructs import Construct
-from aws_cdk import (
-    Stack,
-)
-from accountbootstrap.stack_config_models import (
-    StackConfigBaseModel,
-)
+
+from .base_stack_config import StackConfigBaseModel
+
 
 class BaseStack(Stack):
-    """Define the stack for the TAI API service."""
+    """Define the base stack for all stacks in the project."""
 
     def __init__(
         self,
+        *,
         scope: Construct,
         config: StackConfigBaseModel,
     ) -> None:
-        """Initialize the stack for the TAI API service."""
+        """Initialize the stack."""
         super().__init__(
             scope=scope,
             id=config.stack_id,
